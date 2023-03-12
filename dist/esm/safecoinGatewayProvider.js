@@ -14,5 +14,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("@civic/common-gateway-react"), exports);
-//# sourceMappingURL=types.js.map
+exports.usesafecoinGateway = void 0;
+var chainImplementation_1 = require("./chainImplementation");
+Object.defineProperty(exports, "usesafecoinGateway", { enumerable: true, get: function () { return chainImplementation_1.usesafecoinGateway; } });
+__exportStar(require("./types"), exports);
+//# sourceMappingURL=safecoinGatewayProvider.js.map

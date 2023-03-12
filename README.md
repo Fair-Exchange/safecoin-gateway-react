@@ -1,50 +1,64 @@
-# Gateway React Component 
+# Gateway React Component
 
-- [Getting started](#getting-started)
+- [Getting started](#overview)
+- [Official Documentation](#official-documentation)
+- [Example Project](#example-project)
 - [API Documentation](#api-documentation)
 - [Contributing](#contributing)
 
 ## Overview
 
-This purpose of this library is to provide an easy way to request a Gateway Token from a decentralised Application (dApp).
+Civic provides a developer-friendly plug and play React Component as an easy way to request a Gateway Token from your dApp with minimal setup. It includes a Civic Pass status widget, the Identity Button; and an in-dApp modal to guide your users through the process.
+
+## Official Documentation
+
+You can find the official documentation hosted on [Gitbook](https://docs.civic.com/).
+
+## Example Project
+
+We have also created an example React project that shows how you would go about integrating the different features provided by our `@civic/solana-gateway-react` component project on [Github](https://github.com/civicteam/civic-pass-template).
 
 ## Getting started
+
+Please refer to the project on [Github](https://github.com/civicteam/civic-pass-template) for a complete example.
 
 ### 1. Install the component
 
 ```bash
 npm i @civic/solana-gateway-react
 ```
-or
+
+or using `yarn`
+
 ```bash
 yarn add @civic/solana-gateway-react
 ```
 
 ### 2. Include the gateway context
-
 Surround any code that needs access to the gateway token with:
 
 ```typescript jsx
 import { GatewayProvider } from "@civic/solana-gateway-react";
 
 <GatewayProvider
-  wallet={wallet}
-  gatekeeperNetwork={gatekeeperNetwork}>
+  cluster="devnet"
+	wallet={wallet}
+	gatekeeperNetwork={gatekeeperNetwork}>
 </GatewayProvider>
+
 ```
 
 where:
 
 - `wallet` contains `publicKey` and `signTransaction` (see below)
-- `gatekeeperNetwork` is a Solana publicKey provided by the dApp, orderbook or market instance on-chain. It defines the ruleset that the dApp wants dApp users to adhere to. If you don't know the address of the ruleset network you'd like to use, please contact sales@civic.com.
+- `gatekeeperNetwork` is a Solana publicKey provided by the dApp
+- `cluster` is the Solana network to use, i.e. devnet, mainnet-beta, testnet
 
 ### 3. Accessing or requesting the gateway token
-
 The component will automatically look for a gateway token on chain. To access it once created:
 
 ```typescript
 import { useGateway } from "@civic/solana-gateway-react";
-
 const { gatewayToken } = useGateway()
 ```
 
@@ -57,7 +71,7 @@ const { requestGatewayToken } = useGateway()
 For example, by connecting it to a button component:
 
 ```typescript jsx
-<button onclick={requestGatewayToken}>Validate your wallet</button> 
+<button onclick={requestGatewayToken}>Validate your wallet</button>
 ```
 
 Or by using Identity Button provided:
@@ -66,111 +80,64 @@ Or by using Identity Button provided:
 import IdentityButton from './lib/button/IdentityButton';
 ...
 <IdentityButton />
-```
 
-Supporting light mode:
-
-import IdentityButton from './lib/button/IdentityButton';
-```
-import {
-  IdentityButton,
-  ButtonMode,
-} from '@civic/solana-gateway-react';
-
-<IdentityButton mode={ButtonMode.LIGHT} />
-```
-
-Without animation:
-
-import IdentityButton from './lib/button/IdentityButton';
-```
-import {
-  IdentityButton,
-  ButtonMode,
-} from '@civic/solana-gateway-react';
-
-<IdentityButton withAnimation={false} />
 ```
 
 ### 4. 'Verified by Civic' badge
-A badge is provided that looks for a gateway token on-chain and displays a 'Verified by Civic' badge if one is found.
-This does not query the Civic gatekeeper, only the blockchain.
-Currently this is only supported for Solana and only for certain Civic gatekeeper networks, namely Genesis, Nile and Moselle
 
-The wallet and gatekeeperNetwork are `PublicKey` types from `@solana/web3.js` . 
+A badge is provided that looks for a gateway token on-chain and displays a 'check icon' ( to indicate verified by civic status ) if one is found.
+
+This does not query the Civic gatekeeper, only the blockchain.
+
+Currently this is only supported for Solana.
+
+The wallet and gatekeeperNetwork are `PublicKey` types from `@solana/web3.js` .
 
 The `clusterName` defaults to `mainnet-beta` but can be any one of:
-`mainnet-beta`, `testnet`, `devnet`, `civicnet`, `localnet` .
-```
-Import { Badge } from '@civic/solana-gateway-react';
 
- <Badge
-        clusterName="mainnet-beta"
-        gatekeeperNetwork={gatekeeperNetworkPublicKey}
-        publicKey={publicKey}
-      />
+`mainnet-beta`, `testnet`, `devnet`, `civicnet`, `localnet` .
+
+```typescript jsx
+
+import { Badge } from '@civic/solana-gateway-react';
+
+<Badge
+  clusterName="mainnet-beta"
+  gatekeeperNetwork={gatekeeperNetworkPublicKey}
+  publicKey={publicKey}
+/>
+
 ```
-### IdentityButton behaviour
+
+### 5. IdentityButton behaviour
 
 The IdentityButton is a reference implementation of a UI component to communicate to your dApp users the current status of their Gateway Token, or Gateway Token request. It changes appearance with text and icons to indicate when the user needs to take action and can be clicked by the user at any point in the process. The initial click for a new user will initiate the flow for the user to create a new Gateway Token. Once the user has gone through KYC and submitted their Gateway Token request via the Civic compliance iFrame, any subsequent click will launch the Civic Pass iframe with a screen describing the current status of the flow.
 
-### Advanced Usage
-
-The example below shows an example `GatewayStatus` component that will update, and show the token address, once present.
-
-```typescript jsx
-import React from 'react';
-import logo from './logo.png';
-import {GatewayProvider, useGateway, GatewayStatus} from "@civic/solana-gateway-react";
-
-function GatewayStatus() {
-  const { wallet } = useWallet(); // provided by your dApp
-  const { status, requestGatewayToken, gatewayToken } = useGateway();
-
-  return (
-    <div>
-      <h3>Request Status: { GatewayStatus[status] }</h3>
-      { gatewayToken && <h4>GatewayToken: {gatewayToken.publicKey.toBase58()}</h4>}
-      <button onClick={requestGatewayToken}>Request Gateway Token</button>
-    </div>
-  );
-}
-
-// use it in your app
-function MyGatewayAwareUI() {
-  const { wallet } = useWallet(); // provided by your dApp
-  const gatekeeperNetwork = new PublicKey('ignREusXmGrscGNUesoU9mxfds9AiYTezUKex2PsZV6'); // the network address for IgnitePass
-  return (
-    <GatewayProvider wallet={wallet} gatekeeperNetwork={gatekeeperNetwork}>
-      <GatewayStatus/>
-    </GatewayProvider>
-  )
-}
-```
 
 ## API Documentation
 
 ### GatewayProvider
-
-The `GatewayProvider` is a React component that gives children access to the GatewayContext through the `useGateway` function.
-
-This component holds the state for a given gateway token or gateway token request.
+The `GatewayProvider` is a React component that gives children access to the GatewayContext through the `useGateway` function. This component holds the state for a given gateway token or gateway token request.
 
 ```typescript
+
 export type GatewayProviderProps = {
-  wallet: WalletAdapter | undefined; // the wallet connected to the dApp, can be null initially pre-user wallet connection
-  gatekeeperNetwork: string | undefined; // the gatekeeper network public key address
+  wallet?: WalletAdapter; // the wallet connected to the dApp, can be null initially pre-user wallet connection
+  gatekeeperNetwork?: PublicKey; // the gatekeeper network public key
   stage?: string; // optionally set Civic gatekeeper stage (testing only), defaults to 'prod'
-  clusterUrl?: string; // optionally pass a Solana cluster URL, defaults to solana mainnet
+  clusterUrl: string; // optionally pass a Solana cluster URL, defaults to solana mainnet
+  cluster?: string; // The cluster name. Defaults to mainnet-beta
   wrapper?: React.FC; // a react element that the dApp can wrap the iframe in to allow customer dApp styling
   logo?: string; // optional url of your logo that will be shown, if set, during verification
   redirectUrl?: string; // a redirect URL that can be used for deep-linking and mobile-web
+  broadcastTransaction?: boolean; // the react component will broadcast the transaction. Defaults to true
+  handleTransaction?: (transaction: Transaction) => Promise<void>; // callback that will be invoked with a partial or fully signed transaction
+  options?: Options; // a set of UI options
 };
+
 ```
-### GatewayStatus
 
 ### GatewayStatus
-
 The `GatewayStatus` is an enum that reveals the state of the requested Gateway Token.
 
 ```typescript
@@ -179,18 +146,25 @@ export enum GatewayStatus {
   CHECKING,
   NOT_REQUESTED,
   COLLECTING_USER_INFORMATION,
+  PROOF_OF_WALLET_OWNERSHIP,
   IN_REVIEW,
-  ACTIVE,
-  FROZEN,          
-  REJECTED,  
+  REJECTED,
   REVOKED,
+  FROZEN,
+  ACTIVE,
+  ERROR,
   LOCATION_NOT_SUPPORTED,
-  CONFIRM_WALLET_TRANSACTION
+  VPN_NOT_SUPPORTED,
+  REFRESH_TOKEN_REQUIRED,
+  VALIDATING_USER_INFORMATION,
+  USER_INFORMATION_VALIDATED,
+  USER_INFORMATION_REJECTED,
 }
 ```
 
 The behaviour of the React component depends on the status of the token. For example, if the token status is `NOT_REQUESTED` and the user triggers the react component, then the flow to collect the user's information and request a Civic Token will be started.
-For other cases, like the token status `FROZEN`, triggering the React component opens a dialog explaining to the user the current status and offering him to reach out to Civic is he requires assistance. 
+
+For other cases, like the token status `FROZEN`, triggering the React component opens a dialog explaining to the user the current status and offering him to reach out to Civic is he requires assistance.
 
 The table bellow lists all status:
 
@@ -206,6 +180,7 @@ The table bellow lists all status:
 | `REJECTED` | The token requests has been rejected by the Gatekeeper | Opens the Civic Pass modal dialog with a user-friendly explanation of the status. |
 | `REVOKED` | The token has been revoked, for example because the user connected from a banned IP | Opens the Civic Pass modal dialog with a user-friendly explanation of the status. |
 | `LOCATION_NOT_SUPPORTED` | The user's location is not currently supported | Opens the Civic Pass modal dialog with a user-friendly explanation of the status. |
+| `VPN_NOT_SUPPORTED` | The user is using a proxy or VPN | Opens the Civic Pass modal dialog with a user-friendly explanation of the status. |
 | `REFRESH_TOKEN_REQUIRED` | The user needs to refresh their gateway token | Opens the Civic Pass modal dialog and takes the user through the flow for refreshing their token. |
 | `ERROR` | There was an error retrieving the Gateway Token or completing a vrification flow | Opens the Civic Pass modal dialog and the user can restart the process. |
 | `VALIDATING_USER_INFORMATION` | The validation process is currently being reviewed | Opens the Civic Pass modal dialog and shows a user friendly message |
@@ -214,10 +189,8 @@ The table bellow lists all status:
 | `USER_INFORMATION_REJECTED` | The validation process was rejected | Opens the Civic Pass modal explaing the reasons for the failure |
 
 ### WalletAdapter
+The wallet passed to the GatewayProvider must implement the WalletAdapter interface. By providing a publicKey (this will be linked with the GatewayToken), and a 'sign' function to prove wallet ownership:
 
-The wallet passed to the GatewayProvider must implement the WalletAdapter interface
-by providing a publicKey (this will be linked with the GatewayToken),
-and a 'sign' function to prove wallet ownership:
 ```typescript
 export interface WalletAdapter {
   publicKey?: PublicKey;
@@ -230,15 +203,13 @@ export interface WalletAdapter {
 Any component wrapped by `GatewayProvider` can access the state and useful functions of the GatewayProvider through this function.
 
 Returns the current context values for the `GatewayContext` by exposing the following properties.
+
 ```typescript
 export type GatewayProps = {
   requestGatewayToken: () => Promise<void>, // starts off gateway token process
   gatewayStatus: GatewayStatus, // normally a value from a React hook state, defaults to GatewayStatus.UNKNOWN
   gatewayToken?: GatewayToken, // the current GatewayToken used in the dApp
-  stage?: string, // optionally set Civic gatekeeper stage (testing only), defaults to 'prod'
-  clusterUrl?: string, // optionally pass a Solana cluster URL, defaults to solana mainnet
-  civicPassSrcUrl?: string // the civicPass URL in use - set internally via stage
-  options?: Options // client UI options such as auto-showing the iframe modal
+  gatewayTokenTransaction: string, // if broadcastTransaction is false, this will be populated with any transactions generated by the backend
 }
 
 const gatewayProps: GatewayProps = useGateway();
@@ -247,7 +218,8 @@ const gatewayProps: GatewayProps = useGateway();
 ### Client options
 
 You can specify some options that affect the display behaviour of the Civic modal that the user interacts with:
-```
+
+```typescript
 export type Options = {
   autoShowModal: boolean; // whether the Civic modal should appear automatically if the Civic Pass token state changes
 };
@@ -255,7 +227,7 @@ export type Options = {
 
 ### Wrapper
 
-You can customize how the verification flow is displayed by providing a custom wrapper. 
+You can customise how the verification flow is displayed by providing a custom wrapper.
 
 ```typescript
 ...
@@ -272,7 +244,7 @@ const customWrapperStyle: CSS.Properties = {
 const customWrapperContentStyle: CSS.Properties = {
   backgroundColor: '#fefefe',
   margin: 'auto',
-  width: '90%', 
+  width: '90%',
   position: 'relative',
 }
 
@@ -289,46 +261,25 @@ export const CustomWrapper: React.FC = ({ children = null }) => {
 
 ```
 
-## A note on token refresh
-A token refresh is attempted at regular intervals to verify the user's location.
-Refresh will only happen if:
-1. the token is ACTIVE, and
-2. a pre-refresh Gatekeeper GET call returns 200 (`GatekeeperRecordState.ISSUED`) (i.e. the token is active and not expired / approaching expiry)
-
-
-Error handling works as follows:
-- If a refresh fails with a 5xx from the Civic gatekeeper, it will be retried according to the `REFRESH_RETRY_*` values in config.
-In this case an active token will remain exposed from useGatewa, even after the retries are exhausted.
-
-- For any other refresh error (e.g. network error, 4xx status code), the GatewayStatus will transition to `REFRESH_FAILED` and the token will no longer be exposed from useGateway.
-This only applies to tokens whose on-chain status is ACTIVE.
-If the token is FROZEN or REVOKED on-chain, those statuses take precedence.
-
-In both cases, another refresh will be attempted after the regular `REFRESH_INTERVAL` in config.
 ## Contributing
-
-Building the project and running the sample app: 
-
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `yarn build`
 
-Builds the app for production to the `build` folder.\
+Builds the app for production to the `build` folder.
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 ### `yarn publish`
-Publishing a version of the React Component is currently a manual process. Checkout the project, update the `package.json` file with the correct build number and then run `yarn publish` and follow the prompts.
+
+Publishes a new version of the React Component. We use beta releases before releasing an official release in the following format `(major).(minor).(patch)-beta.(build number)`. You can release a beta with the following command `yarn add @civic/solana-gateway-react@beta`.
+
+### Automated publishing
+
+To publish a new version of the react-component, add a Git tag and use a prefix along with the desired version number e.g.
+```
+solana-rc-0.7.0
+```
+Note that this method should only be used for production versions, not beta tags.
+

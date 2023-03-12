@@ -1,8 +1,8 @@
-import { SolanaWalletAdapter } from './solana/types';
-export type { Options } from './types';
-export { GatewayStatus } from './types';
-export { IdentityButton, getTokenDescription, ButtonMode } from './button';
-export { default as Badge } from './solana/badge';
-export { SolanaGatewayProvider as GatewayProvider, useSolanaGateway as useGateway } from './solana';
-export declare type WalletAdapter = SolanaWalletAdapter;
-export type { SolanaGatewayProps as GatewayProps, SolanaGatewayProviderProps as GatewayProviderProps, } from './solana/types';
+import { safecoinWalletAdapter } from './types';
+export { GatewayStatus } from '@civic/common-gateway-react';
+export { IdentityButton, getTokenDescription, ButtonMode } from '@civic/common-gateway-react';
+export { default as Badge } from './badge';
+export { usesafecoinGateway as useGateway } from './chainImplementation';
+export { safecoinGatewayProvider as GatewayProvider } from './safecoinGatewayProvider';
+export declare type WalletAdapter = safecoinWalletAdapter;
+export type { safecoinGatewayProps as GatewayProps, safecoinGatewayProviderProps as GatewayProviderProps, Options, } from './types';

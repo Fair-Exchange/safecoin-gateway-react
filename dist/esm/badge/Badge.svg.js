@@ -1,3 +1,4 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//# sourceMappingURL=config.js.map
+exports.default = _default;
+//# sourceMappingURL=Badge.svg.js.map
